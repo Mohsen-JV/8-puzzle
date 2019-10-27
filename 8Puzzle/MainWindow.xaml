@@ -5,8 +5,51 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:_8Puzzle"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
+        Title="MainWindow" Height="400" Width="500" ResizeMode="CanMinimize">
+    <Grid Margin="3,0,-3,0">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Border BorderBrush="Black" BorderThickness="2" Margin="10" VerticalAlignment="Center">
+            <Grid x:Name="Puzzle">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Button x:Name="btn1" Width="100" Height="100" Grid.Row="0" Grid.Column="0">1</Button>
+                <Button x:Name="btn2" Width="100" Height="100" Grid.Row="0" Grid.Column="1">2</Button>
+                <Button x:Name="btn3" Width="100" Height="100" Grid.Row="0" Grid.Column="2">3</Button>
+                <Button x:Name="btn4" Width="100" Height="100" Grid.Row="1" Grid.Column="0">4</Button>
+                <Button x:Name="btn5" Width="100" Height="100" Grid.Row="1" Grid.Column="1">5</Button>
+                <Button x:Name="btn6" Width="100" Height="100" Grid.Row="1" Grid.Column="2">6</Button>
+                <Button x:Name="btn7" Width="100" Height="100" Grid.Row="2" Grid.Column="0">7</Button>
+                <Button x:Name="btn8" Width="100" Height="100" Grid.Row="2" Grid.Column="1">8</Button>
+                <Grid.Resources>
+                    <Style TargetType="Button">
+                        <Setter Property="FontSize" Value="24"/>
+                    </Style>
+                </Grid.Resources>
+            </Grid>
+        </Border>
+        <StackPanel Grid.Column="1" Margin="10,30">
+            <Button x:Name="OpenPFF" Content="Open puzzle from file"/>
+            <Button x:Name="EnterNumber" Content="Enter number"/>
+            <Button x:Name="Shuffle" Content="Shuffle"/>
+            <Line Stroke="Black" StrokeThickness="2" X1="0" X2="150" Margin="0,20"/>
+            <Button x:Name="SolveDFS" Content="Solve DFS"/>
+            <StackPanel.Resources>
+                <Style TargetType="Button">
+                    <Setter Property="Margin" Value="0,5" />
+                </Style>
+            </StackPanel.Resources>
+
+        </StackPanel>
     </Grid>
 </Window>
