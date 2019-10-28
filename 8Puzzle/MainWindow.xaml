@@ -17,10 +17,8 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="*"/>
@@ -28,49 +26,35 @@
                 <Rectangle Grid.Row="0" Grid.Column="0"/>
                 <Rectangle Grid.Row="0" Grid.Column="1"/>
                 <Rectangle Grid.Row="0" Grid.Column="2"/>
-                <Rectangle Grid.Row="0" Grid.Column="3"/>
                 <Rectangle Grid.Row="1" Grid.Column="0"/>
                 <Rectangle Grid.Row="1" Grid.Column="1"/>
                 <Rectangle Grid.Row="1" Grid.Column="2"/>
-                <Rectangle Grid.Row="1" Grid.Column="3"/>
                 <Rectangle Grid.Row="2" Grid.Column="0"/>
                 <Rectangle Grid.Row="2" Grid.Column="1"/>
                 <Rectangle Grid.Row="2" Grid.Column="2"/>
-                <Rectangle Grid.Row="2" Grid.Column="3"/>
-                <Rectangle Grid.Row="3" Grid.Column="0"/>
-                <Rectangle Grid.Row="3" Grid.Column="1"/>
-                <Rectangle Grid.Row="3" Grid.Column="2"/>
-                <Rectangle Grid.Row="3" Grid.Column="3"/>
 
                 <Button Grid.Row="0" Grid.Column="0" Content="1"/>
                 <Button Grid.Row="0" Grid.Column="1" Content="2"/>
                 <Button Grid.Row="0" Grid.Column="2" Content="3"/>
-                <Button Grid.Row="0" Grid.Column="3" Content="4"/>
-                <Button Grid.Row="1" Grid.Column="0" Content="5"/>
-                <Button Grid.Row="1" Grid.Column="1" Content="6"/>
-                <Button Grid.Row="1" Grid.Column="2" Content="7"/>
-                <Button Grid.Row="1" Grid.Column="3" Content="8"/>
-                <Button Grid.Row="2" Grid.Column="0" Content="9"/>
-                <Button Grid.Row="2" Grid.Column="1" Content="10"/>
-                <Button Grid.Row="2" Grid.Column="2" Content="11"/>
-                <Button Grid.Row="2" Grid.Column="3" Content="12"/>
-                <Button Grid.Row="3" Grid.Column="0" Content="13"/>
-                <Button Grid.Row="3" Grid.Column="1" Content="14"/>
-                <Button Grid.Row="3" Grid.Column="2" Content="15"/>
-                <Button Grid.Row="3" Grid.Column="3" Visibility="Hidden"/>
+                <Button Grid.Row="1" Grid.Column="0" Content="4"/>
+                <Button Grid.Row="1" Grid.Column="1" Content="5"/>
+                <Button Grid.Row="1" Grid.Column="2" Content="6"/>
+                <Button Grid.Row="2" Grid.Column="0" Content="7"/>
+                <Button Grid.Row="2" Grid.Column="1" Content="8"/>
+                <Button Grid.Row="2" Grid.Column="2" Content="9"/>
 
                 <Grid.Resources>
                     <Style TargetType="Button">
                         <Setter Property="FontSize" Value="24"/>
-                        <Setter Property="Width" Value="75"/>
-                        <Setter Property="Height" Value="75"/>
+                        <Setter Property="Width" Value="100"/>
+                        <Setter Property="Height" Value="100"/>
                     </Style>
                     <Style TargetType="Rectangle">
                         <Setter Property="Fill" Value="White"/>
                         <Setter Property="StrokeThickness" Value="1"/>
                         <Setter Property="Stroke" Value="Black"/>
-                        <Setter Property="Width" Value="75"/>
-                        <Setter Property="Height" Value="75"/>
+                        <Setter Property="Width" Value="100"/>
+                        <Setter Property="Height" Value="100"/>
                     </Style>
                 </Grid.Resources>
             </Grid>
