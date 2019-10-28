@@ -12,8 +12,9 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Border BorderBrush="Black" BorderThickness="2" Margin="10" VerticalAlignment="Center">
-            <Grid x:Name="Puzzle">
+            <Grid x:Name="GridPuzzle" MouseDown="Rectangle_MouseDown">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
@@ -22,25 +23,61 @@
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <Button x:Name="btn1" Width="100" Height="100" Grid.Row="0" Grid.Column="0">1</Button>
-                <Button x:Name="btn2" Width="100" Height="100" Grid.Row="0" Grid.Column="1">2</Button>
-                <Button x:Name="btn3" Width="100" Height="100" Grid.Row="0" Grid.Column="2">3</Button>
-                <Button x:Name="btn4" Width="100" Height="100" Grid.Row="1" Grid.Column="0">4</Button>
-                <Button x:Name="btn5" Width="100" Height="100" Grid.Row="1" Grid.Column="1">5</Button>
-                <Button x:Name="btn6" Width="100" Height="100" Grid.Row="1" Grid.Column="2">6</Button>
-                <Button x:Name="btn7" Width="100" Height="100" Grid.Row="2" Grid.Column="0">7</Button>
-                <Button x:Name="btn8" Width="100" Height="100" Grid.Row="2" Grid.Column="1">8</Button>
+                <Rectangle Grid.Row="0" Grid.Column="0"/>
+                <Rectangle Grid.Row="0" Grid.Column="1"/>
+                <Rectangle Grid.Row="0" Grid.Column="2"/>
+                <Rectangle Grid.Row="0" Grid.Column="3"/>
+                <Rectangle Grid.Row="1" Grid.Column="0"/>
+                <Rectangle Grid.Row="1" Grid.Column="1"/>
+                <Rectangle Grid.Row="1" Grid.Column="2"/>
+                <Rectangle Grid.Row="1" Grid.Column="3"/>
+                <Rectangle Grid.Row="2" Grid.Column="0"/>
+                <Rectangle Grid.Row="2" Grid.Column="1"/>
+                <Rectangle Grid.Row="2" Grid.Column="2"/>
+                <Rectangle Grid.Row="2" Grid.Column="3"/>
+                <Rectangle Grid.Row="3" Grid.Column="0"/>
+                <Rectangle Grid.Row="3" Grid.Column="1"/>
+                <Rectangle Grid.Row="3" Grid.Column="2"/>
+                <Rectangle Grid.Row="3" Grid.Column="3"/>
+
+                <Button Grid.Row="0" Grid.Column="0" Content="1"/>
+                <Button Grid.Row="0" Grid.Column="1" Content="2"/>
+                <Button Grid.Row="0" Grid.Column="2" Content="3"/>
+                <Button Grid.Row="0" Grid.Column="3" Content="4"/>
+                <Button Grid.Row="1" Grid.Column="0" Content="5"/>
+                <Button Grid.Row="1" Grid.Column="1" Content="6"/>
+                <Button Grid.Row="1" Grid.Column="2" Content="7"/>
+                <Button Grid.Row="1" Grid.Column="3" Content="8"/>
+                <Button Grid.Row="2" Grid.Column="0" Content="9"/>
+                <Button Grid.Row="2" Grid.Column="1" Content="10"/>
+                <Button Grid.Row="2" Grid.Column="2" Content="11"/>
+                <Button Grid.Row="2" Grid.Column="3" Content="12"/>
+                <Button Grid.Row="3" Grid.Column="0" Content="13"/>
+                <Button Grid.Row="3" Grid.Column="1" Content="14"/>
+                <Button Grid.Row="3" Grid.Column="2" Content="15"/>
+                <Button Grid.Row="3" Grid.Column="3" Visibility="Hidden"/>
+
                 <Grid.Resources>
                     <Style TargetType="Button">
                         <Setter Property="FontSize" Value="24"/>
+                        <Setter Property="Width" Value="75"/>
+                        <Setter Property="Height" Value="75"/>
+                    </Style>
+                    <Style TargetType="Rectangle">
+                        <Setter Property="Fill" Value="White"/>
+                        <Setter Property="StrokeThickness" Value="1"/>
+                        <Setter Property="Stroke" Value="Black"/>
+                        <Setter Property="Width" Value="75"/>
+                        <Setter Property="Height" Value="75"/>
                     </Style>
                 </Grid.Resources>
             </Grid>
         </Border>
         <StackPanel Grid.Column="1" Margin="10,30">
             <Button x:Name="OpenPFF" Content="Open puzzle from file"/>
-            <Button x:Name="EnterNumber" Content="Enter number"/>
+            <Button x:Name="EnterNumber" Content="Enter number" Click="EnterNumber_Click"/>
             <Button x:Name="Shuffle" Content="Shuffle"/>
             <Line Stroke="Black" StrokeThickness="2" X1="0" X2="150" Margin="0,20"/>
             <Button x:Name="SolveDFS" Content="Solve DFS"/>
@@ -49,7 +86,6 @@
                     <Setter Property="Margin" Value="0,5" />
                 </Style>
             </StackPanel.Resources>
-
         </StackPanel>
     </Grid>
 </Window>
