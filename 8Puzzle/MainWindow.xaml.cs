@@ -23,6 +23,7 @@ namespace _8Puzzle
     /// </summary>
     public partial class MainWindow : Window
     {
+        #region UI code behind
         int[,] Puzzle;
         System.Timers.Timer clock;
         public MainWindow()
@@ -109,6 +110,7 @@ namespace _8Puzzle
             t.Start();
             stackButton.IsEnabled = false;
         }
+
         void ShufflePuzzle()
         {
             var rnd = new Random();
@@ -231,5 +233,148 @@ namespace _8Puzzle
                 GridPuzzle.Children[9 + rowZero * 3 + colZero].Visibility = Visibility.Hidden;
             }
         }
+        #endregion
+        #region BFS solve
+        public enum Dir : short { up, right, down, left }
+        struct BFSNode
+        {
+            public short rowZ, colZ;
+            public Queue<Dir> order;
+        }
+
+        private void SolveBFS_Click(object sender, RoutedEventArgs e)
+        {
+            Task t = new Task(BFS);
+            GridPuzzle.IsEnabled = false;
+            OpenPFF.IsEnabled = false;
+            EnterNumber.IsEnabled = false;
+            Shuffle.IsEnabled = false;
+            SolveBFS.IsEnabled = false;
+            t.Start();
+        }
+
+        void SolveWithOrderPuzzle(BFSNode orderSolve)
+        {
+            clock.Interval = 500;
+            var direcsion = new[] { new { rd = -1, cd = 0 }, new { rd = 0, cd = 1 }
+                                  , new { rd = 1, cd = 0 }, new { rd = 0, cd = -1} };
+            foreach (var item in orderSolve.order)
+            {
+                int r = rowZero + direcsion[(int)item].rd, c = colZero + direcsion[(int)item].cd, rz = rowZero, cz = colZero;
+                Puzzle[rowZero, colZero] = Puzzle[r, c];
+                Puzzle[r, c] = 0;
+                rowZero = r;
+                colZero = c;
+                Monitor.Enter("lock");
+                Monitor.Pulse("lock");
+                Monitor.Wait("lock");
+                Dispatcher.Invoke(() =>
+                {
+                    GridPuzzle.Children[9 + rz * 3 + cz].Visibility = Visibility.Visible;
+                    (GridPuzzle.Children[9 + rz * 3 + cz] as Button).Content = Puzzle[rz, cz].ToString();
+                    GridPuzzle.Children[9 + rowZero * 3 + colZero].Visibility = Visibility.Hidden;
+                });
+                Monitor.Exit("lock");
+            }
+            clock.Interval = 100;
+            Dispatcher.Invoke(() =>
+            {
+                GridPuzzle.IsEnabled = true;
+                OpenPFF.IsEnabled = true;
+                EnterNumber.IsEnabled = true;
+                Shuffle.IsEnabled = true;
+                SolveBFS.IsEnabled = true;
+            });
+        }
+
+        void BFS()
+        {
+            Queue<BFSNode> fringe = new Queue<BFSNode>();
+            fringe.Enqueue(new BFSNode() { rowZ = (short)rowZero, colZ = (short)colZero, order = new Queue<Dir>() });
+            while (true)
+            {
+                int numofq = fringe.Count;
+                for (int i = 0; i < numofq; i++)
+                    foreach (var item in expandNode(fringe.Dequeue(), numofq == 1))
+                        fringe.Enqueue(item);
+                foreach (var item in fringe)
+                {
+                    if (check(item))
+                    {
+                        SolveWithOrderPuzzle(item);
+                        return;
+                    }
+                }
+            }
+        }
+
+        bool check(BFSNode orderNode)
+        {
+            int o = orderNode.order.Count;
+            orderNode.order = new Queue<Dir>(orderNode.order.ToArray());
+            int[,] p = Puzzle.Clone() as int[,];
+            int rowz = rowZero, colz = colZero;
+            var direcsion = new[] { new { rd = -1, cd = 0 }, new { rd = 0, cd = 1 }
+                                    , new { rd = 1, cd = 0 }, new { rd = 0, cd = -1} };
+            for (int i = orderNode.order.Count; i > 0; i--)
+            {
+                var dir = orderNode.order.Dequeue();
+                int r = rowz + direcsion[(int)dir].rd, c = colz + direcsion[(int)dir].cd;
+                p[rowz, colz] = p[r, c];
+                p[r, c] = 0;
+                rowz = r;
+                colz = c;
+            }
+            if (CheckSolvePuzzle(p)) return true;
+            return false;
+        }
+        bool CheckSolvePuzzle(int[,] p)
+        {
+            int[,] sP = new int[,] { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 0 } };
+            for (int i = 0; i < 3; i++)
+                for (int j = 0; j < 3; j++)
+                    if (sP[i, j] != p[i, j]) return false;
+            return true;
+        }
+
+        IEnumerable<BFSNode> expandNode(BFSNode node, bool isRoot)
+        {
+            var direcsion = new[] { new { rd = -1, cd = 0,dir=Dir.up }, new { rd = 0, cd = 1 ,dir=Dir.right}
+                                    , new { rd = 1, cd = 0 ,dir=Dir.down}, new { rd = 0, cd = -1,dir=Dir.left } };
+            BFSNode tempNode;
+            foreach (var d in direcsion)
+            {
+                if (isRoot || d.dir != reverseDir(node.order.Last()))
+                {
+                    if (node.rowZ + d.rd > -1 && node.rowZ + d.rd < 3
+                        && node.colZ + d.cd > -1 && node.colZ + d.cd < 3)
+                    {
+                        tempNode = node;
+                        tempNode.order = new Queue<Dir>(node.order.ToArray());
+                        tempNode.rowZ += (short)d.rd;
+                        tempNode.colZ += (short)d.cd;
+                        tempNode.order.Enqueue(d.dir);
+                        yield return tempNode;
+                    }
+                }
+            }
+        }
+
+        Dir reverseDir(Dir d)
+        {
+            switch (d)
+            {
+                case Dir.down:
+                    return Dir.up;
+                case Dir.up:
+                    return Dir.down;
+                case Dir.left:
+                    return Dir.right;
+                case Dir.right:
+                    return Dir.left;
+            }
+            return Dir.left;
+        }
+        #endregion
     }
 }
