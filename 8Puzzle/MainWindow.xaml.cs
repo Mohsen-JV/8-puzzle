@@ -114,7 +114,7 @@ namespace _8Puzzle
         void ShufflePuzzle()
         {
             var rnd = new Random();
-            int num = rnd.Next(8, 21);
+            int num = rnd.Next(18, 31);
             preRow = rowZero;
             preCol = colZero;
             for (int i = 0; i < num; i++)
@@ -246,10 +246,7 @@ namespace _8Puzzle
         {
             Task t = new Task(BFS);
             GridPuzzle.IsEnabled = false;
-            OpenPFF.IsEnabled = false;
-            EnterNumber.IsEnabled = false;
-            Shuffle.IsEnabled = false;
-            SolveBFS.IsEnabled = false;
+            stackButton.IsEnabled = false;
             t.Start();
         }
 
@@ -277,14 +274,6 @@ namespace _8Puzzle
                 Monitor.Exit("lock");
             }
             clock.Interval = 100;
-            Dispatcher.Invoke(() =>
-            {
-                GridPuzzle.IsEnabled = true;
-                OpenPFF.IsEnabled = true;
-                EnterNumber.IsEnabled = true;
-                Shuffle.IsEnabled = true;
-                SolveBFS.IsEnabled = true;
-            });
         }
 
         void BFS()
@@ -302,6 +291,11 @@ namespace _8Puzzle
                     if (check(item))
                     {
                         SolveWithOrderPuzzle(item);
+                        Dispatcher.Invoke(() =>
+                        {
+                            GridPuzzle.IsEnabled = true;
+                            stackButton.IsEnabled = true;
+                        });
                         return;
                     }
                 }
@@ -310,7 +304,6 @@ namespace _8Puzzle
 
         bool check(BFSNode orderNode)
         {
-            int o = orderNode.order.Count;
             orderNode.order = new Queue<Dir>(orderNode.order.ToArray());
             int[,] p = Puzzle.Clone() as int[,];
             int rowz = rowZero, colz = colZero;
@@ -328,6 +321,7 @@ namespace _8Puzzle
             if (CheckSolvePuzzle(p)) return true;
             return false;
         }
+
         bool CheckSolvePuzzle(int[,] p)
         {
             int[,] sP = new int[,] { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 0 } };
@@ -375,6 +369,96 @@ namespace _8Puzzle
             }
             return Dir.left;
         }
+        #endregion
+        #region GBFS solve
+        List<int> visitedNode;
+
+        IEnumerable<BFSNode> expandNodeGraph(BFSNode node, bool isRoot)
+        {
+            var direcsion = new[] { new { rd = -1, cd = 0,dir=Dir.up }, new { rd = 0, cd = 1 ,dir=Dir.right}
+                                    , new { rd = 1, cd = 0 ,dir=Dir.down}, new { rd = 0, cd = -1,dir=Dir.left } };
+            BFSNode tempNode;
+            foreach (var d in direcsion)
+            {
+                if (isRoot || d.dir != reverseDir(node.order.Last()))
+                {
+                    if (node.rowZ + d.rd > -1 && node.rowZ + d.rd < 3
+                        && node.colZ + d.cd > -1 && node.colZ + d.cd < 3)
+                    {
+                        tempNode = node;
+                        tempNode.order = new Queue<Dir>(node.order.ToArray());
+                        tempNode.rowZ += (short)d.rd;
+                        tempNode.colZ += (short)d.cd;
+                        tempNode.order.Enqueue(d.dir);
+                        if (checkVisit(tempNode)) continue;
+                        yield return tempNode;
+                    }
+                }
+            }
+        }
+        bool checkVisit(BFSNode orderNode)
+        {
+            orderNode.order = new Queue<Dir>(orderNode.order.ToArray());
+            int[,] p = Puzzle.Clone() as int[,];
+            int rowz = rowZero, colz = colZero;
+            var direcsion = new[] { new { rd = -1, cd = 0 }, new { rd = 0, cd = 1 }
+                                    , new { rd = 1, cd = 0 }, new { rd = 0, cd = -1} };
+            for (int i = orderNode.order.Count; i > 0; i--)
+            {
+                var dir = orderNode.order.Dequeue();
+                int r = rowz + direcsion[(int)dir].rd, c = colz + direcsion[(int)dir].cd;
+                p[rowz, colz] = p[r, c];
+                p[r, c] = 0;
+                rowz = r;
+                colz = c;
+            }
+            int numOfNode = 0, e = 1;
+            for (int i = 0; i < 3; i++)
+                for (int j = 0; j < 3; j++)
+                {
+                    numOfNode += p[i, j] * e;
+                    e *= 10;
+                }
+            if (visitedNode.Contains(numOfNode)) return true;
+            visitedNode.Add(numOfNode);
+            return false;
+        }
+
+        void GBFS()
+        {
+            Queue<BFSNode> fringe = new Queue<BFSNode>();
+            visitedNode = new List<int>();
+            fringe.Enqueue(new BFSNode() { rowZ = (short)rowZero, colZ = (short)colZero, order = new Queue<Dir>() });
+            while (true)
+            {
+                int numofq = fringe.Count;
+                for (int i = 0; i < numofq; i++)
+                    foreach (var item in expandNodeGraph(fringe.Dequeue(), numofq == 1))
+                        fringe.Enqueue(item);
+                foreach (var item in fringe)
+                {
+                    if (check(item))
+                    {
+                        SolveWithOrderPuzzle(item);
+                        Dispatcher.Invoke(() =>
+                        {
+                            GridPuzzle.IsEnabled = true;
+                            stackButton.IsEnabled = true;
+                        });
+                        return;
+                    }
+                }
+            }
+        }
+
+        private void SolveGBFS_Click(object sender, RoutedEventArgs e)
+        {
+            Task t = new Task(GBFS);
+            GridPuzzle.IsEnabled = false;
+            stackButton.IsEnabled = false;
+            t.Start();
+        }
+
         #endregion
     }
 }

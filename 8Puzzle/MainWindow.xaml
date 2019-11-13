@@ -65,6 +65,7 @@
             <Button x:Name="Shuffle" Content="Shuffle" Click="Shuffle_Click"/>
             <Line Stroke="Black" StrokeThickness="2" X1="0" X2="150" Margin="0,20"/>
             <Button x:Name="SolveBFS" Content="Solve BFS" Click="SolveBFS_Click"/>
+            <Button x:Name="SolveGBFS" Content="Solve GBFS" Click="SolveGBFS_Click" />
             <StackPanel.Resources>
                 <Style TargetType="Button">
                     <Setter Property="Margin" Value="0,5" />
