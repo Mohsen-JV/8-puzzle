@@ -280,6 +280,15 @@ namespace _8Puzzle
         {
             Queue<BFSNode> fringe = new Queue<BFSNode>();
             fringe.Enqueue(new BFSNode() { rowZ = (short)rowZero, colZ = (short)colZero, order = new Queue<Dir>() });
+            if (CheckSolvePuzzle(Puzzle))
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    GridPuzzle.IsEnabled = true;
+                    stackButton.IsEnabled = true;
+                });
+                return;
+            }
             while (true)
             {
                 int numofq = fringe.Count;
@@ -430,6 +439,15 @@ namespace _8Puzzle
             Queue<BFSNode> fringe = new Queue<BFSNode>();
             visitedNode = new List<int>();
             fringe.Enqueue(new BFSNode() { rowZ = (short)rowZero, colZ = (short)colZero, order = new Queue<Dir>() });
+            if (CheckSolvePuzzle(Puzzle))
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    GridPuzzle.IsEnabled = true;
+                    stackButton.IsEnabled = true;
+                });
+                return;
+            }
             while (true)
             {
                 int numofq = fringe.Count;
