@@ -11,6 +11,13 @@
             <ColumnDefinition Width="auto"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <StatusBar Grid.Row="1" Grid.ColumnSpan="2" Height="25" VerticalAlignment="Bottom">
+            <TextBlock x:Name="tbTimer" Text="00:00:00"/>
+        </StatusBar>
         <Border BorderBrush="Black" BorderThickness="2" Margin="10" VerticalAlignment="Center">
             <Grid x:Name="GridPuzzle" MouseDown="Rectangle_MouseDown">
                 <Grid.ColumnDefinitions>

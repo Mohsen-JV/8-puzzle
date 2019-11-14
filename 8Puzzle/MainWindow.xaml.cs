@@ -26,6 +26,8 @@ namespace _8Puzzle
         #region UI code behind
         int[,] Puzzle;
         System.Timers.Timer clock;
+        System.DateTime time;
+        bool timeStop;
         public MainWindow()
         {
             InitializeComponent();
@@ -44,6 +46,25 @@ namespace _8Puzzle
             Monitor.Wait("lock");
             Monitor.Exit("lock");
             clock.Start();
+        }
+
+        void timer()
+        {
+            Task t = new Task(() =>
+            {
+                time = new DateTime(1, 1, 1, 1, 0, 0, 0);
+                timeStop = false;
+                while (!timeStop)
+                {
+                    Monitor.Enter("lock");
+                    Monitor.Pulse("lock");
+                    time=time.AddMilliseconds(100);
+                    Dispatcher.Invoke(() => tbTimer.Text = string.Format($"{time.Minute}:{time.Second}:{time.Millisecond}"));
+                    Monitor.Wait("lock");
+                    Monitor.Exit("lock");
+                }
+            });
+            t.Start();
         }
 
         private void Rectangle_MouseDown(object sender, MouseButtonEventArgs e)
@@ -70,7 +91,9 @@ namespace _8Puzzle
                 stackButton.IsEnabled = true;
             }
         }
+
         int num = -1;
+
         private void EnterNumber_Click(object sender, RoutedEventArgs e)
         {
             num = 1;
@@ -102,6 +125,7 @@ namespace _8Puzzle
                     (GridPuzzle.Children[i * 3 + j + 9] as Button).Content = lines[i].Split(',')[j];
                 }
         }
+
         int rowZero, colZero, preRow, preCol;
 
         private void Shuffle_Click(object sender, RoutedEventArgs e)
@@ -114,13 +138,14 @@ namespace _8Puzzle
         void ShufflePuzzle()
         {
             var rnd = new Random();
-            int num = rnd.Next(18, 31);
+            int num = rnd.Next(180, 310);
             preRow = rowZero;
             preCol = colZero;
             for (int i = 0; i < num; i++)
                 while (!move(rnd.Next(1, 5))) ;
             Dispatcher.Invoke(() => stackButton.IsEnabled = true);
         }
+
         bool move(int dir)
         {
             //1 up - 2 right - 3 down - 4 left
@@ -216,6 +241,7 @@ namespace _8Puzzle
             }
             return true;
         }
+
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             int i;
@@ -235,7 +261,9 @@ namespace _8Puzzle
         }
         #endregion
         #region BFS solve
+
         public enum Dir : short { up, right, down, left }
+
         struct BFSNode
         {
             public short rowZ, colZ;
@@ -244,6 +272,7 @@ namespace _8Puzzle
 
         private void SolveBFS_Click(object sender, RoutedEventArgs e)
         {
+            timer();
             Task t = new Task(BFS);
             GridPuzzle.IsEnabled = false;
             stackButton.IsEnabled = false;
@@ -299,6 +328,7 @@ namespace _8Puzzle
                 {
                     if (check(item))
                     {
+                        timeStop = true;
                         SolveWithOrderPuzzle(item);
                         Dispatcher.Invoke(() =>
                         {
@@ -458,6 +488,7 @@ namespace _8Puzzle
                 {
                     if (check(item))
                     {
+                        timeStop = true;
                         SolveWithOrderPuzzle(item);
                         Dispatcher.Invoke(() =>
                         {
@@ -472,6 +503,7 @@ namespace _8Puzzle
 
         private void SolveGBFS_Click(object sender, RoutedEventArgs e)
         {
+            timer();
             Task t = new Task(GBFS);
             GridPuzzle.IsEnabled = false;
             stackButton.IsEnabled = false;
@@ -483,6 +515,7 @@ namespace _8Puzzle
 
         private void SolveIDS_Click(object sender, RoutedEventArgs e)
         {
+            timer();
             Task t = new Task(IDS);
             GridPuzzle.IsEnabled = false;
             stackButton.IsEnabled = false;
@@ -499,6 +532,7 @@ namespace _8Puzzle
                 if (IDSSearch(Puzzle, rowZero, colZero, ref order, L, true)) break;
                 L++;
             }
+            timeStop = true;
             solveWithOrder(order);
             Dispatcher.Invoke(() =>
             {
