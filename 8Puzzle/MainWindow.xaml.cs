@@ -253,11 +253,11 @@ namespace _8Puzzle
         void SolveWithOrderPuzzle(BFSNode orderSolve)
         {
             clock.Interval = 500;
-            var direcsion = new[] { new { rd = -1, cd = 0 }, new { rd = 0, cd = 1 }
+            var direction = new[] { new { rd = -1, cd = 0 }, new { rd = 0, cd = 1 }
                                   , new { rd = 1, cd = 0 }, new { rd = 0, cd = -1} };
             foreach (var item in orderSolve.order)
             {
-                int r = rowZero + direcsion[(int)item].rd, c = colZero + direcsion[(int)item].cd, rz = rowZero, cz = colZero;
+                int r = rowZero + direction[(int)item].rd, c = colZero + direction[(int)item].cd, rz = rowZero, cz = colZero;
                 Puzzle[rowZero, colZero] = Puzzle[r, c];
                 Puzzle[r, c] = 0;
                 rowZero = r;
@@ -307,12 +307,12 @@ namespace _8Puzzle
             orderNode.order = new Queue<Dir>(orderNode.order.ToArray());
             int[,] p = Puzzle.Clone() as int[,];
             int rowz = rowZero, colz = colZero;
-            var direcsion = new[] { new { rd = -1, cd = 0 }, new { rd = 0, cd = 1 }
+            var direction = new[] { new { rd = -1, cd = 0 }, new { rd = 0, cd = 1 }
                                     , new { rd = 1, cd = 0 }, new { rd = 0, cd = -1} };
             for (int i = orderNode.order.Count; i > 0; i--)
             {
                 var dir = orderNode.order.Dequeue();
-                int r = rowz + direcsion[(int)dir].rd, c = colz + direcsion[(int)dir].cd;
+                int r = rowz + direction[(int)dir].rd, c = colz + direction[(int)dir].cd;
                 p[rowz, colz] = p[r, c];
                 p[r, c] = 0;
                 rowz = r;
@@ -333,10 +333,10 @@ namespace _8Puzzle
 
         IEnumerable<BFSNode> expandNode(BFSNode node, bool isRoot)
         {
-            var direcsion = new[] { new { rd = -1, cd = 0,dir=Dir.up }, new { rd = 0, cd = 1 ,dir=Dir.right}
+            var direction = new[] { new { rd = -1, cd = 0,dir=Dir.up }, new { rd = 0, cd = 1 ,dir=Dir.right}
                                     , new { rd = 1, cd = 0 ,dir=Dir.down}, new { rd = 0, cd = -1,dir=Dir.left } };
             BFSNode tempNode;
-            foreach (var d in direcsion)
+            foreach (var d in direction)
             {
                 if (isRoot || d.dir != reverseDir(node.order.Last()))
                 {
@@ -375,10 +375,10 @@ namespace _8Puzzle
 
         IEnumerable<BFSNode> expandNodeGraph(BFSNode node, bool isRoot)
         {
-            var direcsion = new[] { new { rd = -1, cd = 0,dir=Dir.up }, new { rd = 0, cd = 1 ,dir=Dir.right}
+            var direction = new[] { new { rd = -1, cd = 0,dir=Dir.up }, new { rd = 0, cd = 1 ,dir=Dir.right}
                                     , new { rd = 1, cd = 0 ,dir=Dir.down}, new { rd = 0, cd = -1,dir=Dir.left } };
             BFSNode tempNode;
-            foreach (var d in direcsion)
+            foreach (var d in direction)
             {
                 if (isRoot || d.dir != reverseDir(node.order.Last()))
                 {
@@ -396,17 +396,18 @@ namespace _8Puzzle
                 }
             }
         }
+
         bool checkVisit(BFSNode orderNode)
         {
             orderNode.order = new Queue<Dir>(orderNode.order.ToArray());
             int[,] p = Puzzle.Clone() as int[,];
             int rowz = rowZero, colz = colZero;
-            var direcsion = new[] { new { rd = -1, cd = 0 }, new { rd = 0, cd = 1 }
+            var direction = new[] { new { rd = -1, cd = 0 }, new { rd = 0, cd = 1 }
                                     , new { rd = 1, cd = 0 }, new { rd = 0, cd = -1} };
             for (int i = orderNode.order.Count; i > 0; i--)
             {
                 var dir = orderNode.order.Dequeue();
-                int r = rowz + direcsion[(int)dir].rd, c = colz + direcsion[(int)dir].cd;
+                int r = rowz + direction[(int)dir].rd, c = colz + direction[(int)dir].cd;
                 p[rowz, colz] = p[r, c];
                 p[r, c] = 0;
                 rowz = r;
@@ -459,6 +460,90 @@ namespace _8Puzzle
             t.Start();
         }
 
+        #endregion
+        #region IDS solve
+
+        private void SolveIDS_Click(object sender, RoutedEventArgs e)
+        {
+            Task t = new Task(IDS);
+            GridPuzzle.IsEnabled = false;
+            stackButton.IsEnabled = false;
+            t.Start();
+        }
+
+        void IDS()
+        {
+            int L = 0;
+            Queue<Dir> order = new Queue<Dir>();
+            while (true)
+            {
+                order.Clear();
+                if (IDSSearch(Puzzle, rowZero, colZero, ref order, L, true)) break;
+                L++;
+            }
+            solveWithOrder(order);
+            Dispatcher.Invoke(() =>
+            {
+                GridPuzzle.IsEnabled = true;
+                stackButton.IsEnabled = true;
+            });
+        }
+
+        void solveWithOrder(Queue<Dir> order)
+        {
+            clock.Interval = 500;
+            var direction = new[] { new { rd = -1, cd = 0 }, new { rd = 0, cd = 1 }
+                                  , new { rd = 1, cd = 0 }, new { rd = 0, cd = -1} };
+            foreach (var item in order)
+            {
+                int r = rowZero + direction[(int)item].rd, c = colZero + direction[(int)item].cd, rz = rowZero, cz = colZero;
+                Puzzle[rowZero, colZero] = Puzzle[r, c];
+                Puzzle[r, c] = 0;
+                rowZero = r;
+                colZero = c;
+                Monitor.Enter("lock");
+                Monitor.Pulse("lock");
+                Monitor.Wait("lock");
+                Dispatcher.Invoke(() =>
+                {
+                    GridPuzzle.Children[9 + rz * 3 + cz].Visibility = Visibility.Visible;
+                    (GridPuzzle.Children[9 + rz * 3 + cz] as Button).Content = Puzzle[rz, cz].ToString();
+                    GridPuzzle.Children[9 + rowZero * 3 + colZero].Visibility = Visibility.Hidden;
+                });
+                Monitor.Exit("lock");
+            }
+            clock.Interval = 100;
+        }
+
+        bool IDSSearch(int[,] p, int rowZ, int colZ, ref Queue<Dir> order, int l, bool isRoot = false)
+        {
+            if (CheckSolvePuzzle(p)) return true;
+            if (order.Count > l) return false;
+            var direction = new[] { new { rd = -1, cd = 0,dir=Dir.up }, new { rd = 0, cd = 1 ,dir=Dir.right}
+                                    , new { rd = 1, cd = 0 ,dir=Dir.down}, new { rd = 0, cd = -1,dir=Dir.left } };
+            foreach (var d in direction)
+            {
+                if (isRoot || d.dir != reverseDir(order.Last()))
+                {
+                    if (rowZ + d.rd > -1 && rowZ + d.rd < 3
+                        && colZ + d.cd > -1 && colZ + d.cd < 3)
+                    {
+                        int rz = rowZ + (short)d.rd, cz = colZ + (short)d.cd;
+                        int[,] np = p.Clone() as int[,];
+                        np[rowZ, colZ] = np[rz, cz];
+                        np[rz, cz] = 0;
+                        Queue<Dir> tempOrder = new Queue<Dir>(order);
+                        tempOrder.Enqueue(d.dir);
+                        if (IDSSearch(np, rz, cz, ref tempOrder, l))
+                        {
+                            order = tempOrder;
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
         #endregion
     }
 }
